@@ -16,6 +16,7 @@ import "@solana/wallet-adapter-react-ui/styles.css";
 
 export const Donate = () => {
   const { connection } = useConnection();
+  const [d, setD] = useState(true);
   const { publicKey, sendTransaction } = useWallet();
 
   const [balance, setBalance] = useState<number | null>(null);
@@ -57,6 +58,11 @@ export const Donate = () => {
   }, [publicKey, sendTransaction, connection, amount]);
 
   useEffect(() => {
+    if (!publicKey) {
+      setD(true);
+    } else {
+      setD(false);
+    }
     const fetchBalance = async () => {
       if (publicKey) {
         const bal = await connection.getBalance(publicKey);
@@ -75,9 +81,13 @@ export const Donate = () => {
         <WalletDisconnectButton />
       </div>
 
-      {publicKey && (
+      {publicKey ? (
         <div className="text-lg mb-4 text-center">
           Balance: {balance !== null ? `${balance} SOL` : "Loading..."}
+        </div>
+      ) : (
+        <div className=" p-3 m-3">
+          <p> Balance : connect your wallet !</p>
         </div>
       )}
 
@@ -89,6 +99,7 @@ export const Donate = () => {
           placeholder="Enter amount in SOL"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
+          disabled={d}
         />
         <button
           onClick={donateHandler}
